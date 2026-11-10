@@ -1,0 +1,60 @@
+# ==============================================================================
+# FreshRoute — GitHub Actions CI Pipeline
+# ==============================================================================
+#
+# This workflow runs automatically on:
+#   - Every push to main
+#   - Every pull request targeting main
+#
+# What it does:
+#   1. Sets up Python 3.12
+#   2. Installs all dependencies
+#   3. Runs the full test suite with coverage
+#   4. Fails the build if any test fails
+#
+# The green checkmark badge this produces on your GitHub repo is what
+# recruiters look for as proof the code is tested and maintained.
+# ==============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --cov=app --cov-report=term-missing --cov-fail-under=80
+
+      - name: Verify scheduling engine runs standalone
+        run: |
+          python app/services/scheduling_engine.py
