@@ -1,0 +1,50 @@
+# ==============================================================================
+# FreshRoute — Python Dependencies
+# ==============================================================================
+#
+# Install all dependencies:
+#     pip install -r requirements.txt
+#
+# Install production only (inside Docker):
+#     pip install --no-dev -r requirements.txt
+#
+# Pin versions for reproducible builds. Run `pip freeze` after any upgrade
+# and commit the updated file so everyone on the team gets the same versions.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# PRODUCTION DEPENDENCIES
+# ------------------------------------------------------------------------------
+
+# FastAPI — web framework. Provides routing, dependency injection,
+# automatic OpenAPI docs generation.
+fastapi==0.115.5
+
+# Uvicorn — ASGI server that runs the FastAPI application.
+# [standard] includes httptools and uvloop for better performance.
+uvicorn[standard]==0.32.1
+
+# Pydantic v2 — data validation and serialisation.
+# FastAPI 0.115+ uses Pydantic v2 by default.
+pydantic==2.10.3
+
+# python-multipart — required for FastAPI form data parsing.
+# Included because future endpoints may accept file uploads.
+python-multipart==0.0.19
+
+# ------------------------------------------------------------------------------
+# DEVELOPMENT / TESTING DEPENDENCIES
+# ------------------------------------------------------------------------------
+
+# pytest — test runner
+pytest==8.3.4
+
+# httpx — required by FastAPI TestClient for making test HTTP requests
+httpx==0.28.1
+
+# pytest-cov — generates test coverage reports
+# Usage: pytest --cov=app --cov-report=term-missing
+pytest-cov==6.0.0
+
+# pytest-asyncio — needed if async endpoints are added in future phases
+pytest-asyncio==0.24.0
