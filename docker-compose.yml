@@ -1,0 +1,60 @@
+# ==============================================================================
+# FreshRoute — Docker Compose (Local Development)
+# ==============================================================================
+#
+# Start everything:
+#     docker compose up --build
+#
+# Stop everything:
+#     docker compose down
+#
+# Rebuild after code changes:
+#     docker compose up --build
+#
+# Run tests inside container:
+#     docker compose exec api pytest tests/ -v
+#
+# This file defines the local development environment.
+# In production, Railway / AWS ECS / Render manage containers directly.
+# ==============================================================================
+
+services:
+
+  # ----------------------------------------------------------------------------
+  # API service — the FastAPI application
+  # ----------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Map port 8000 inside the container to port 8000 on your machine.
+    # Visit http://localhost:8000/docs after startup.
+    ports:
+      - "8000:8000"
+
+    # Override the Dockerfile CMD for development.
+    # --reload watches for file changes and restarts the server automatically.
+    # Remove --reload in production (already absent from Dockerfile CMD).
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+    # Mount the project directory into the container.
+    # Changes to your code are reflected immediately without rebuilding.
+    # Only needed in development — remove for production builds.
+    volumes:
+      - .:/app
+
+    # Environment variables available to the application.
+    # These override any defaults. Add a .env file and reference it here
+    # with env_file: .env when you add secrets.
+    environment:
+      - PYTHONUNBUFFERED=1
+      - APP_ENV=development
+
+    # Health check: Docker will restart the container if this fails.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
